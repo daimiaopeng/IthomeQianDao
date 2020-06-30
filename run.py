@@ -46,7 +46,7 @@ def run(username, password):
         response = session.post(url=url_login, data=json.dumps(data), headers=header).headers['Set-Cookie']
         user_hash = re.search(r'user=hash=[a-zA-Z0-9]{160,160}', response).group()[10:]
         md5 = getHash(str(datetime.date.today()))
-        url_qiandao = 'http://my.ruanmei.com/api/UserSign/Sign?userHash=%s&type=0&endt=%s' % (user_hash, md5)
+        url_qiandao = 'https://my.ruanmei.com/api/UserSign/Sign?userHash=%s&type=0&endt=%s' % (user_hash, md5)
         qiandao = session.get(url=url_qiandao).json()
         with open('log.txt', 'a', encoding='utf-8') as f:
             f.write(str(datetime.datetime.now()) + ' ' + username + ' ' + str(qiandao['msg']) + '\n')
