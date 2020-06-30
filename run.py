@@ -25,7 +25,7 @@ def getHash(text):
 
 def run(username, password):
     session = requests.session()
-    url_login = 'http://my.ruanmei.com/Default.aspx/LoginUser'
+    url_login = 'https://my.ruanmei.com/Default.aspx/LoginUser'
     data = {'mail': username, 'psw': password, 'rememberme': 'true'}
     header = {
         'Accept': 'application/json, text/javascript, */*; q=0.01',
