@@ -1,7 +1,8 @@
 # 更新 2020年6月30日15:06:28
 
-IT之家签到程序
-安装python3，再在cmd里输入`pip install requests` `pip install Crypto` 然后改动代码里用户名和密码就可以了
+IT之家签到程序，可多次请求api获取上百金币，api链接中coinHistoryType字段为添加金币途径，设置为不同值就可以添加不同途径金币收入，具体收入明细可以去app中查看。
+
+安装python3，再在cmd里输入`pip install requests` `pip install Crypto` 然后改动代码里用户名和密码就可以了。
 
 # it之家加密分析
 
