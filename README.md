@@ -15,9 +15,10 @@ DES加密，密钥为：`(#i@x*l%`，填充方式：`zeropadding`，输出方式
 
 网站http://tool.chacuo.net/cryptdes
 
-测试字符串为https://dyn.ithome.com/api/comment/getnewscomment?sn=1a84e1bfdc2ec68d中的`1a84e1bfdc2ec68d`
+测试字符串为https://dyn.ithome.com/api/comment/getnewscomment?sn=1a84e1bfdc2ec68d 中的`1a84e1bfdc2ec68d`
 [![NTvJTU.png](https://s1.ax1x.com/2020/07/01/NTvJTU.png)](https://imgchr.com/i/NTvJTU)
 
 解密结果482628，上面的链接是评论api，482628是新闻id，所以原始新闻为https://www.ithome.com/0/482/628.htm
-
+## 常见的加密字符串
 userHash为getHash(用户名+md5(密码))
+其它的一般直接加密
