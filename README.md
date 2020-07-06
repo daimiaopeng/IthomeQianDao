@@ -1,3 +1,5 @@
+# 现在it之家签到js代码使用sojson.v5加密，暂且破解不了
+url为https://my.ruanmei.com/app/user/signinwechat.html?signtype=wechatapp ，加密的js为https://my.ruanmei.com/js/app/signinwechat.min.js?v=2020 。
 # 更新 2020年6月30日15:06:28
 
 IT之家签到程序，~~可多次请求api获取上百金币，api链接中coinHistoryType字段为添加金币途径，设置为不同值就可以添加不同途径金币收入，具体收入明细可以去app中查看。(暂且失效)~~
