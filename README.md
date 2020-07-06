@@ -23,6 +23,7 @@
 
 通过Fiddle断点替换js，js代码`'endt': _0x5e2efb['wMjTQ'](getEncryptStr)`改为`getEncryptStr`，然后通过url中的endt字段获取密钥，因为之前以为这个是待的加密文本所以endt没有变化，以为失败了就没再尝试，如果换成`getEncryptKey()`应该会有变化
 
+# 简介
 IT之家签到程序，~~可多次请求api获取上百金币，api链接中coinHistoryType字段为添加金币途径，设置为不同值就可以添加不同途径金币收入，具体收入明细可以去app中查看。(暂且失效)~~
 
 安装python3，再在cmd里输入`pip install requests` `pip install Crypto` 然后改动代码里用户名和密码就可以了。
