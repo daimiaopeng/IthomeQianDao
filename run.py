@@ -6,6 +6,7 @@ import Crypto.Cipher.DES
 
 requests.packages.urllib3.disable_warnings()
 
+
 # 项目链连接：https://github.com/daimiaopeng/IthomeQianDao
 # 使用说明：安装python3，再在cmd里输入pip install requests 然后改动下面数据就可以了日志文件保存
 # 在同目录下的log.txt
@@ -57,8 +58,7 @@ def run(username, password):
             'referer': 'https://my.ruanmei.com/app/user/signin.html?hidemenu=1&appver=2',
         }
         for fuck in qiandaocode:
-            url_qiandao = 'https://my.ruanmei.com/api/usersign/sign?userHash=%s&type=%s&endt=%s' % (
-            user_hash, fuck, endt)
+            url_qiandao = 'https://my.ruanmei.com/api/usersign/sign?userHash=%s&type=%s&endt=%s' % (user_hash, fuck, endt)
             try:
                 qiandao = session.get(url=url_qiandao).json()
                 print(qiandao)
@@ -68,6 +68,7 @@ def run(username, password):
     except Exception as e:
         print(e)
         print("可能密码错误")
+
 
 
 my_list = [
