@@ -21,7 +21,7 @@ def auto_fill(x):
 
 
 def getHash(text):
-    key = "qs$^w<4!"
+    key = "HCa%Y|7#"
     x = Crypto.Cipher.DES.new(key.encode(), Crypto.Cipher.DES.MODE_ECB)
     a = x.encrypt(auto_fill(str(text))).hex()
     return str(a)
