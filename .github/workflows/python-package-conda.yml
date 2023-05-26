@@ -1,10 +1,15 @@
 name: It Home Auto Sign'
 
+
 on:
+  push:
   schedule:
     - cron: '0 9 * * *'
   workflow_dispatch:
-
+  
+env:
+  TZ: Asia/Shanghai
+  
 jobs:
   ithome_sign:
     runs-on: ubuntu-latest
