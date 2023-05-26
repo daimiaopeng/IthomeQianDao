@@ -18,7 +18,7 @@ jobs:
       - name: 'Install dependencies'
         run: python -m pip install --upgrade requests
       - name: 'Start Sign'
-        env:
+#         env:
 #           BDUSS: ${{ secrets.BDUSS }}
 #           HOST: ${{ secrets.HOST }}
 #           FROM: ${{ secrets.FROM }}
