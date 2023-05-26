@@ -215,7 +215,6 @@ my_list = [
 for i in my_list:
     if 'USERNAME' not in ENV or 'PASSWORD' not in ENV :
         print("未配置环境变量USERNAME和PASSWORD")
-        return
     else:
         i['username'] = ENV['USERNAME']
         i['password'] = ENV['PASSWORD']
