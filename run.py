@@ -182,7 +182,7 @@ def run(username, password):
             time =  (datetime.datetime.now() + datetime.timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
         else:
             time = current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        print("tiem:"+time)
         endt = getSign()
         session = requests.session()
         session.verify = False
