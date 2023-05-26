@@ -1,12 +1,12 @@
-name: 'Baidu Tieba Auto Sign'
+name: It Home Auto Sign'
 
 on:
   schedule:
-    - cron: '13 17,23 * * *'
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
-  tieba_sign:
+  ithome_sign:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout codes'
@@ -18,10 +18,7 @@ jobs:
       - name: 'Install dependencies'
         run: python -m pip install --upgrade requests
       - name: 'Start Sign'
-#         env:
-#           BDUSS: ${{ secrets.BDUSS }}
-#           HOST: ${{ secrets.HOST }}
-#           FROM: ${{ secrets.FROM }}
-#           TO: ${{ secrets.TO }}
-#           AUTH: ${{ secrets.AUTH }}
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
         run: python run.py
