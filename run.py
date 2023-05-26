@@ -5,6 +5,7 @@ import datetime
 import time
 from pyDes import des, ECB
 import binascii
+import os
 
 requests.packages.urllib3.disable_warnings()
 
@@ -212,4 +213,11 @@ my_list = [
     }
 ]
 for i in my_list:
-    code = run(i['username'], i['password'])
+    if 'USERNAME' not in ENV or 'PASSWORD' not in ENV :
+        print("未配置环境变量USERNAME和PASSWORD")
+        return
+    else:
+        i['username'] = ENV['USERNAME']
+        i['password'] = ENV['PASSWORD']
+        code = run(i['username'], i['password'])
+    

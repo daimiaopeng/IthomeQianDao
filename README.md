@@ -1,3 +1,7 @@
+# 实现github actions自动化签到
+fork 一份代码到自己仓库，然后在https://github.com/daimiaopeng/IthomeQianDao/settings/secrets/actions/new 用户名换成你自己的，添加密钥里面添加USERNAME和PASSWORD
+每天早上9点自动签到
+
 # 截止2022年12月14日17:37:15签到代码仍是可用的
 # 更新 2020年9月9日15:16:16 
 最新解密代码见文件
