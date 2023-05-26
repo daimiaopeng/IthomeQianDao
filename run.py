@@ -176,13 +176,6 @@ def run(username, password):
     try:
         response = requests.post(url=url_login, data=json.dumps(data), headers=header).headers['Set-Cookie']
         user_hash = re.search(r'user=hash=[a-zA-Z0-9]{160,160}', response).group()[10:]
-
-        if 'USERNAME'  in ENV or 'PASSWORD'  in ENV :
-            # 云函数时间可能早8个小时，应该使用下面时间
-            time =  (datetime.datetime.now() + datetime.timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
-        else:
-            time = current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print("tiem:"+time)
         endt = getSign()
         session = requests.session()
         session.verify = False
