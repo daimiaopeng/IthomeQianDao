@@ -6,7 +6,7 @@ import time
 from pyDes import des, ECB
 import binascii
 import os
-
+ENV = os.environfix
 requests.packages.urllib3.disable_warnings()
 
 # 项目链连接：https://github.com/daimiaopeng/IthomeQianDao
