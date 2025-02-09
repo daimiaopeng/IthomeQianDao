@@ -15,7 +15,7 @@ requests.packages.urllib3.disable_warnings()
 # 在同目录下的log.txt
 def make_up_data(data: str, mode="PAD_ZERO"):
     pad = 8 - len(data) % 8
-    pad_str = ""
+    pad_str = ''
     if mode == "PAD_PKCS5":
         for _ in range(pad):
             pad_str += chr(pad)
@@ -66,7 +66,7 @@ def des_descrypt(s: str) -> str:
     return de
 
 
-# print(des_descrypt('b1d5d07310f93d040d19ee09ce9edfc106da4ace88148d05'))
+# print(des_descrypt("b1d5d07310f93d040d19ee09ce9edfc106da4ace88148d05"))
 
 
 def cn(x: bytes):
@@ -152,7 +152,7 @@ def geKK2(_0x249526: int, _0x2fce26: int):
 
 
 def gneKK(_0x4060f6: datetime):
-    return "k" + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
+    return 'k' + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
 
 
 def geKsK(_0x101b3e: datetime):
@@ -160,7 +160,7 @@ def geKsK(_0x101b3e: datetime):
 
 
 def gneKK2(_0x4060f6: int):
-    return "k" + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
+    return 'k' + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
 
 
 def geKsK2(_0x101b3e: float):
@@ -172,7 +172,7 @@ def geKsK2(_0x101b3e: float):
 
 def getSign():
     now = int(time.time() * 1000)
-    return "&timestamp=" + str(now) + "&" + gneKK2(now) + "=" + geKsK2(now)
+    return "&timestamp=" + str(now) + '&' + gneKK2(now) + '=' + geKsK2(now)
 
 
 def run(username: str, password: str):
@@ -224,20 +224,21 @@ def run(username: str, password: str):
             "sec-fetch-dest": "empty",
             "referer": "https://my.ruanmei.com/app/user/signin.html?hidemenu=1&appver=2",
         }
+        error: list[Exception] = []
         for fuck in qiandaocode:
-            url_qiandao = (
-                "https://my.ruanmei.com/api/usersign/sign?userHash=%s&type=%s&endt=%s"
-                % (user_hash, fuck, endt)
-            )
+            url_qiandao = f"https://my.ruanmei.com/api/usersign/sign?userHash={user_hash}&type={fuck}&endt={endt}"
             try:
                 qiandao = session.get(url=url_qiandao).json()
                 print(qiandao)
+                if "msg" in qiandao:
+                    msg: str = qiandao["msg"]
+                    if msg.find("失败"):
+                        error.append(Exception(qiandao))
             except Exception as e:
-                print(e)
-                continue
+                error.append(e)
+        return error
     except Exception as e:
-        print(e)
-        print("可能密码错误")
+        raise ExceptionGroup("可能密码错误", [e])
 
 
 my_list = [
@@ -248,8 +249,12 @@ my_list = [
 ]
 for i in my_list:
     if "USERNAME" not in ENV or "PASSWORD" not in ENV:
-        print("未配置环境变量USERNAME和PASSWORD")
+        raise Exception("未配置环境变量 USERNAME 或 PASSWORD")
     else:
         i["username"] = ENV["USERNAME"]
         i["password"] = ENV["PASSWORD"]
-        code = run(i["username"], i["password"])
+        error = run(i["username"], i["password"])
+        if len(error):
+            raise ExceptionGroup("签到失败", error)
+        else:
+            print("签到成功")

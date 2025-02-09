@@ -15,15 +15,15 @@ from datetime import datetime
 from pyDes import des, ECB
 
 # 秘钥
-# KEY='(#i@x*l%'
-# KEY = 'qs$^w<4!'
-# KEY = 'HCa%Y|7#'
+# KEY = "(#i@x*l%"
+# KEY = "qs$^w<4!"
+# KEY = "HCa%Y|7#"
 KEY = "+f/1+hfh"
 
 
 def make_up_data(data: str, mode="PAD_ZERO"):
     pad = 8 - len(data) % 8
-    pad_str = ""
+    pad_str = ''
     if mode == "PAD_PKCS5":
         for _ in range(pad):
             pad_str += chr(pad)
@@ -74,7 +74,7 @@ def des_descrypt(s: str) -> str:
     return de
 
 
-# print(des_descrypt('b1d5d07310f93d040d19ee09ce9edfc106da4ace88148d05'))
+# print(des_descrypt("b1d5d07310f93d040d19ee09ce9edfc106da4ace88148d05"))
 
 
 def cn(x: bytes):
@@ -160,7 +160,7 @@ def geKK2(_0x249526: int, _0x2fce26: int):
 
 
 def gneKK(_0x4060f6: datetime):
-    return "k" + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
+    return 'k' + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
 
 
 def geKsK(_0x101b3e: datetime):
@@ -168,7 +168,7 @@ def geKsK(_0x101b3e: datetime):
 
 
 def gneKK2(_0x4060f6: int):
-    return "k" + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
+    return 'k' + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
 
 
 def geKsK2(_0x101b3e: float):
@@ -270,6 +270,6 @@ if __name__ == "__main__":
     print((cn(ithome.signyunriliAndroid())))
     if signresult.find("失败".encode()) > -1:
         print("签到失败")
-        # EmailHelper.sendEmailByZixing163("IT之家签到反馈",signresult)
+        # EmailHelper.sendEmailByZixing163("IT之家签到反馈", signresult)
     else:
         print("签到成功")
