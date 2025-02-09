@@ -5,18 +5,18 @@ ENV TZ=Asia/Shanghai \
 
 WORKDIR /app
 
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime&&echo 'Asia/Shanghai' > /etc/timezone
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' > /etc/timezone
 
 RUN apt-get update \
-    &&apt-get install -y apt-utils \
-    &&apt-get install -y python3 \
-    &&apt-get install -y python3-pip \
-    &&apt-get install -y wget \
-    &&apt-get install -y unzip  \
-    &&pip3 install requests 
-    
-RUN wget https://github.com/daimiaopeng/IthomeQianDao/archive/refs/heads/master.zip \
-    &&unzip master.zip 
-    
+    && apt-get install -y apt-utils \
+    && apt-get install -y python3 \
+    && apt-get install -y python3-pip \
+    && apt-get install -y wget \
+    && apt-get install -y unzip  \
+    && pip3 install requests \
+    && pip3 install pydes
 
-CMD [ "python3", "/app/IthomeQianDao-master/run.py" ]
+RUN wget https://github.com/wherewhere/ITHomeSign/archive/refs/heads/master.zip \
+    && unzip master.zip     
+
+CMD [ "python3", "/app/ITHomeSign-master/run.py" ]

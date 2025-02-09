@@ -1,28 +1,27 @@
-name: It Home Auto Sign'
-
+name: ITHome Auto Sign
 
 on:
   push:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:
-  
+
 env:
   TZ: Asia/Shanghai
-  
+
 jobs:
   ithome_sign:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout codes'
-        uses: actions/checkout@v3
-      - name: 'Set python'
-        uses: actions/setup-python@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - name: 'Install dependencies'
-        run: python -m pip install --upgrade requests
-      - name: 'Start Sign'
+          python-version: '3.13'
+      - name: Install Dependencies
+        run: python -m pip install --upgrade requests pydes
+      - name: Start Sign
         env:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
