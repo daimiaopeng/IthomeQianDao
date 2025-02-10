@@ -209,7 +209,7 @@ def signWithHash(user_hash: str):
                 msg: str = qiandao["msg"]
                 if msg.find("失败") != -1:
                     error.append(Exception(qiandao))
-            else:
+            elif "ok" not in qiandao:
                 error.append(Exception("签到失败，可能是 UserHash 错误"))
         except Exception as e:
             error.append(e)
