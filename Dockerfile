@@ -19,4 +19,4 @@ RUN apt-get update \
 RUN wget https://github.com/daimiaopeng/IthomeQianDao/archive/refs/heads/master.zip \
     && unzip master.zip     
 
-CMD [ "python3", "/app/ITHomeSign-master/run.py" ]
+CMD [ "python3", "/app/IthomeQianDao-master/run.py" ]
