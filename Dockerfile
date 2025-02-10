@@ -16,7 +16,7 @@ RUN apt-get update \
     && pip3 install requests \
     && pip3 install pydes
 
-RUN wget https://github.com/wherewhere/ITHomeSign/archive/refs/heads/master.zip \
+RUN wget https://github.com/daimiaopeng/IthomeQianDao/archive/refs/heads/master.zip \
     && unzip master.zip     
 
 CMD [ "python3", "/app/ITHomeSign-master/run.py" ]
