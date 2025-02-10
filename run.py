@@ -217,7 +217,7 @@ def signWithHash(user_hash: str):
 
 
 if __name__ == "__main__":
-    if "USERHASH" in ENV:
+    if "USERHASH" in ENV and ENV["USERHASH"]:
         print("通过 UserHash 签到")
         error = signWithHash(ENV["USERHASH"])
         if len(error):
