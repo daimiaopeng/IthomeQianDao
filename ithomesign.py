@@ -23,7 +23,7 @@ KEY = "+f/1+hfh"
 
 def make_up_data(data: str, mode="PAD_ZERO"):
     pad = 8 - len(data) % 8
-    pad_str = ''
+    pad_str = ""
     if mode == "PAD_PKCS5":
         for _ in range(pad):
             pad_str += chr(pad)
@@ -44,6 +44,8 @@ def des_encrypt(s: str):
     iv = secret_key
     k = des(secret_key, ECB, iv, pad=None)
     en = k.encrypt(s)
+    if isinstance(en, str):
+        en = en.encode("latin-1")
     return binascii.b2a_hex(en)
 
 
@@ -58,6 +60,8 @@ def des_encrypt2(s: str, key: str):
     iv = secret_key
     k = des(secret_key, ECB, iv, pad=None)
     en = k.encrypt(s)
+    if isinstance(en, str):
+        en = en.encode("latin-1")
     return binascii.b2a_hex(en).decode()
 
 
@@ -98,8 +102,8 @@ def getDate(dtime: datetime):
     return dtime.day
 
 
-def getDate2(dtime: int):
-    dtime: datetime = datetime.fromtimestamp(dtime / 1000)
+def getDate2(timestamp: float):
+    dtime = datetime.fromtimestamp(timestamp / 1000)
     return dtime.day
 
 
@@ -130,10 +134,10 @@ def geKK(_0x249526: datetime, _0x2fce26: int):
             + _0x17c13c[parseInt(_0x5c548d % 0xA) * _0x5c59ee]
         )
     else:
-        return None
+        return ""
 
 
-def geKK2(_0x249526: int, _0x2fce26: int):
+def geKK2(_0x249526: float, _0x2fce26: int):
     _0x17c13c = "hd7%b4f8p9)*fd4h5l6|)123/*-+!#$@%^*()_+?>?njidfds[]rfbcvnb3rz/ird|opqqyh487874515/%90hggigadfihklhkopjj`b3hsdfdsf84215456fi15451%q(#@Fzd795hn^Ccl$vK^L%#w$^yr%ETvX#0TaPSRm5)OeG)^fQnn6^%^UTtJI#3EZ@p6^Rf$^!O$(jnkOiBjn3#inhOQQ!aTX8R)9O%#o3zCVxo3tLyVorwYwA^$%^b9Yy$opSEAOOlFBsS^5d^HoF%tJ$dx%3)^q^c^$al%b4I)QHq^#^AlcK^KZFYf81#bL$n@$%j^H(%m^"
     _0x5c548d = _0x249526  # 时间戳
     _0x5c59ee = getDate2(_0x249526)  # 当月第几日
@@ -156,11 +160,11 @@ def geKK2(_0x249526: int, _0x2fce26: int):
             + _0x17c13c[parseInt(_0x5c548d % 0xA) * _0x5c59ee]
         )
     else:
-        return None
+        return ""
 
 
 def gneKK(_0x4060f6: datetime):
-    return 'k' + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
+    return "k" + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
 
 
 def geKsK(_0x101b3e: datetime):
@@ -168,7 +172,7 @@ def geKsK(_0x101b3e: datetime):
 
 
 def gneKK2(_0x4060f6: int):
-    return 'k' + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
+    return "k" + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
 
 
 def geKsK2(_0x101b3e: float):

@@ -13,8 +13,7 @@ RUN apt-get update \
     && apt-get install -y python3-pip \
     && apt-get install -y wget \
     && apt-get install -y unzip  \
-    && pip3 install requests \
-    && pip3 install pydes
+    && pip3 install requests
 
 RUN wget https://github.com/daimiaopeng/IthomeQianDao/archive/refs/heads/master.zip \
     && unzip master.zip     
