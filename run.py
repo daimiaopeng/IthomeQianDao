@@ -1,237 +1,231 @@
+# -*- coding: utf-8 -*-
+"""
+IT之家自动签到与每日任务独立脚本入口。
+
+环境变量：
+- USERNAME + PASSWORD: 软媒账号（手机号/邮箱）与密码（推荐）
+- USERHASH 或 TOKEN: 直接传入新版 JWT token 或旧版 userHash
+- ENABLE_READ_TASK: 是否执行每日文章阅读任务（默认 true，设为 0/false 关闭）
+- WECHAT_COIN_KEY: 可选，微信公众号回复「金币」获取的金币码
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
-import binascii
-import re
-import requests
-import time
-from os import environ as ENV
-from datetime import datetime
-from pyDes import des, ECB
+import os
+import sys
+from typing import Any
 
-requests.packages.urllib3.disable_warnings()
+from ithomesign import ITHomeClient, ITHomeError, sanitize_sensitive_text
 
 
-# 项目链连接：https://github.com/daimiaopeng/IthomeQianDao
-# 使用说明：安装python3，再在cmd里输入pip install requests 然后改动下面数据就可以了日志文件保存
-# 在同目录下的log.txt
-def make_up_data(data: str, mode="PAD_ZERO"):
-    pad = 8 - len(data) % 8
-    pad_str = ""
-    if mode == "PAD_PKCS5":
-        for _ in range(pad):
-            pad_str += chr(pad)
-    elif mode == "PAD_ZERO":
-        for _ in range(pad):
-            pad_str += chr(0)
-    return data + pad_str
+def _env_bool(name: str, default: bool = True) -> bool:
+    val = os.environ.get(name)
+    if val is None or val == "":
+        return default
+    return val.strip().lower() not in {"0", "false", "no", "off"}
 
 
-def des_encrypt2(s: str, key: str):
-    """
-    DES 加密
-    :param s: 原始字符串
-    :return: 加密后字符串，16进制
-    """
-    s = make_up_data(s)
-    secret_key = key
-    iv = secret_key
-    k = des(secret_key, ECB, iv, pad=None)
-    en = k.encrypt(s)
-    return binascii.b2a_hex(en).decode()
+def _is_github_actions() -> bool:
+    return os.environ.get("GITHUB_ACTIONS", "").lower() == "true"
 
 
-def cn(x: bytes):
-    return x.decode("u8")
+def _add_github_mask(secret: str | None) -> None:
+    """在 GitHub Actions 中注册动态敏感值掩码，防止动态 token 意外出现在日志中。"""
+    if secret and _is_github_actions():
+        print(f"::add-mask::{secret}", flush=True)
 
 
-def getNowTime13():
-    return str(int(round(time.time() * 1000)))
+def run_workflow(
+    *,
+    username: str | None = None,
+    password: str | None = None,
+    userhash: str | None = None,
+    enable_read_task: bool = True,
+    wechat_coin_key: str | None = None,
+    verify_already_signed: bool = False,
+    check_only: bool = False,
+    verbose: bool = False,
+) -> dict[str, Any]:
+    client = ITHomeClient()
+    _add_github_mask(wechat_coin_key)
 
+    # 1. 登录鉴权（若同时配置了 USERHASH/TOKEN 与 USERNAME+PASSWORD，前者失效时自动回退密码登录）
+    if userhash:
+        print("[1/4] 使用 USERHASH / TOKEN 鉴权...")
+        try:
+            auth_info = client.login_by_userhash(userhash)
+        except Exception as exc:
+            if username and password:
+                safe_err = sanitize_sensitive_text(str(exc), [userhash, password])
+                print(f"      USERHASH / TOKEN 鉴权失败（{safe_err}），自动回退账号密码登录...")
+                auth_info = client.login_by_password(username, password)
+            else:
+                raise
+    elif username and password:
+        print("[1/4] 使用账号密码登录...")
+        auth_info = client.login_by_password(username, password)
+    else:
+        raise ITHomeError("请配置环境变量 USERNAME 与 PASSWORD，或 USERHASH / TOKEN")
 
-def getNowTime132(dtime: datetime):
-    print((str(int(time.mktime(dtime.timetuple()) * 1000))))
-    return str(int(time.mktime(dtime.timetuple()) * 1000))
+    # 登录拿到动态 JWT token 后立即向 GitHub Actions 注册掩码
+    _add_github_mask(client.token)
 
-
-def getTime(dtime: datetime):
-    return int(time.mktime(dtime.timetuple())) * 1000
-
-
-def getDate(dtime: datetime):
-    return dtime.day
-
-
-def getDate2(dtime: int):
-    dtime: datetime = datetime.fromtimestamp(dtime / 1000)
-    return dtime.day
-
-
-def parseInt(data: float):
-    return int(data)
-
-
-def geKK(_0x249526: datetime, _0x2fce26: int):
-    _0x17c13c = "hd7%b4f8p9)*fd4h5l6|)123/*-+!#$@%^*()_+?>?njidfds[]rfbcvnb3rz/ird|opqqyh487874515/%90hggigadfihklhkopjj`b3hsdfdsf84215456fi15451%q(#@Fzd795hn^Ccl$vK^L%#w$^yr%ETvX#0TaPSRm5)OeG)^fQnn6^%^UTtJI#3EZ@p6^Rf$^!O$(jnkOiBjn3#inhOQQ!aTX8R)9O%#o3zCVxo3tLyVorwYwA^$%^b9Yy$opSEAOOlFBsS^5d^HoF%tJ$dx%3)^q^c^$al%b4I)QHq^#^AlcK^KZFYf81#bL$n@$%j^H(%m^"
-    _0x5c548d = getTime(_0x249526)  # 时间戳
-    _0x5c59ee = getDate(_0x249526)  # 当月第几日
-    _0x5c548d = round(_0x5c548d / 0xC350) * _0x5c59ee * 0x3
-    if _0x2fce26 == 3:
-        return (
-            _0x17c13c[parseInt(_0x5c548d % 0x2710 / 0x3E8) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x3E8 / 0x64) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x64 / 0xA) * _0x5c59ee]
-        )
-    elif _0x2fce26 == 8:
-        return (
-            _0x17c13c[parseInt(_0x5c548d % 0x5F5E100 / 0x989680) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x989680 / 0xF4240) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0xF4240 / 0x186A0) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x186A0 / 0x2710) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x2710 / 0x3E8) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x3E8 / 0x64) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x64 / 0xA) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0xA) * _0x5c59ee]
+    if verbose and not _is_github_actions():
+        print(
+            f"      登录成功: userId={auth_info.get('userId')}, "
+            f"userNick={auth_info.get('userNick')}"
         )
     else:
-        return None
+        print("      登录成功")
 
+    if check_only:
+        sign_info = client.get_sign_info()
+        user_info = client.get_it_user_info()
+        level_info = client.get_level_info()
+        history = client.get_coin_history(record_type="income", max_id=0)[:5]
+        return {
+            "auth": auth_info,
+            "signInfo": sign_info,
+            "userInfo": user_info,
+            "levelInfo": level_info,
+            "recentIncome": history,
+        }
 
-def geKK2(_0x249526: int, _0x2fce26: int):
-    _0x17c13c = "hd7%b4f8p9)*fd4h5l6|)123/*-+!#$@%^*()_+?>?njidfds[]rfbcvnb3rz/ird|opqqyh487874515/%90hggigadfihklhkopjj`b3hsdfdsf84215456fi15451%q(#@Fzd795hn^Ccl$vK^L%#w$^yr%ETvX#0TaPSRm5)OeG)^fQnn6^%^UTtJI#3EZ@p6^Rf$^!O$(jnkOiBjn3#inhOQQ!aTX8R)9O%#o3zCVxo3tLyVorwYwA^$%^b9Yy$opSEAOOlFBsS^5d^HoF%tJ$dx%3)^q^c^$al%b4I)QHq^#^AlcK^KZFYf81#bL$n@$%j^H(%m^"
-    _0x5c548d = _0x249526  # 时间戳
-    _0x5c59ee = getDate2(_0x249526)  # 当月第几日
-    _0x5c548d = round(_0x5c548d / 0xC350) * _0x5c59ee * 0x3
-    if _0x2fce26 == 3:
-        return (
-            _0x17c13c[parseInt(_0x5c548d % 0x2710 / 0x3E8) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x3E8 / 0x64) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x64 / 0xA) * _0x5c59ee]
+    # 2. 每日签到与金币到账验证
+    print("[2/4] 执行每日签到与金币到账核验...")
+    checkin_result = client.check_in(verify_already_signed=verify_already_signed)
+    if verbose and not _is_github_actions():
+        print(
+            f"      签到状态: {'已签到' if checkin_result['signed'] else '未签到'} "
+            f"(方式={checkin_result['methodUsed']}, 连签={checkin_result['continueDays']}天, "
+            f"累计={checkin_result['totalDays']}天)"
         )
-    elif _0x2fce26 == 8:
-        return (
-            _0x17c13c[parseInt(_0x5c548d % 0x5F5E100 / 0x989680) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x989680 / 0xF4240) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0xF4240 / 0x186A0) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x186A0 / 0x2710) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x2710 / 0x3E8) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x3E8 / 0x64) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0x64 / 0xA) * _0x5c59ee]
-            + _0x17c13c[parseInt(_0x5c548d % 0xA) * _0x5c59ee]
+        print(
+            f"      金币余额: {checkin_result['coinBefore']} -> {checkin_result['coinAfter']} "
+            f"(本次变动 {checkin_result['coinDelta']:+d}, "
+            f"今日金币 {checkin_result['todayGainedCoin']}/{checkin_result['todayCanGainCoin']})"
+        )
+        if checkin_result["todaySignRecords"]:
+            for rec in checkin_result["todaySignRecords"]:
+                print(
+                    f"      今日签到入账流水: [{rec.get('addTime')}] "
+                    f"{rec.get('typeName')} +{rec.get('coin')} 金币 (id={rec.get('id')})"
+                )
+        else:
+            print("      今日签到入账流水: 暂未查到今日签到入账记录")
+    else:
+        print(
+            f"      签到状态: {'已签到' if checkin_result['signed'] else '未签到'} "
+            f"(方式={checkin_result['methodUsed']}, "
+            f"今日金币={checkin_result['todayGainedCoin']}/{checkin_result['todayCanGainCoin']}, "
+            f"本次变动={checkin_result['coinDelta']:+d}, "
+            f"入账核验={'通过' if checkin_result['creditedVerified'] else '未通过'})"
+        )
+
+    # 3. 金币任务状态 & 可选微信金币码绑定
+    print("[3/4] 检查「领金币」页金币任务状态...")
+    gold_tasks: dict[str, Any] = {
+        "dailyCheckIn": {
+            "gained": checkin_result["todayGainedCoin"],
+            "cap": checkin_result["todayCanGainCoin"],
+            "completed": checkin_result["todayGainedCoin"] >= checkin_result["todayCanGainCoin"]
+            and checkin_result["todayCanGainCoin"] > 0,
+        },
+        "followIthome": checkin_result.get("followIthomeInfo"),
+        "followRuanmei": checkin_result.get("followRuanmeiInfo"),
+        "manualTasks": [
+            "投递有效新闻线索（采纳得500金币，需人工投稿）",
+            "参与产品百科共建（需人工编辑词条）",
+            "文章勘误/错别字纠错（采纳得100金币，需人工提交）",
+        ],
+    }
+    for label, key in (("关注IT之家公众号", "followIthome"), ("关注软媒服务号", "followRuanmei")):
+        info = gold_tasks.get(key)
+        if isinstance(info, dict):
+            status = "已达成" if info.get("isAchieve") else "未达成"
+            print(f"      {label}: {status}")
+
+    if wechat_coin_key:
+        bind_res = client.bind_wechat_coin_key(wechat_coin_key)
+        gold_tasks["wechatCoinKeyBind"] = bind_res
+        print(f"      微信金币码绑定: {'成功' if bind_res.get('success') else '失败'}")
+
+    # 4. 每日文章阅读经验任务
+    read_task_result: dict[str, Any] | None = None
+    if enable_read_task:
+        print("[4/4] 执行每日文章阅读任务...")
+        read_task_result = client.run_news_read_task()
+        print(
+            f"      阅读经验: {read_task_result['readExpBefore']}/{read_task_result['readExpCap']} "
+            f"-> {read_task_result['readExpAfter']}/{read_task_result['readExpCap']} "
+            f"(上报 {read_task_result['articlesReported']} 篇)"
         )
     else:
-        return None
+        print("[4/4] 已跳过每日文章阅读任务 (ENABLE_READ_TASK=false)")
+
+    if not checkin_result["creditedVerified"]:
+        raise ITHomeError("签到或金币到账核验未通过")
+
+    return {
+        "auth": auth_info,
+        "checkin": checkin_result,
+        "goldTasks": gold_tasks,
+        "readTask": read_task_result,
+    }
 
 
-def gneKK(_0x4060f6: datetime):
-    return "k" + des_encrypt2(geKK(_0x4060f6, 3), geKK(_0x4060f6, 8))
+def main() -> int:
+    parser = argparse.ArgumentParser(description="IT之家独立自动签到与任务脚本")
+    parser.add_argument("--no-read-task", action="store_true", help="不执行每日文章阅读任务")
+    parser.add_argument(
+        "--verify-already-signed",
+        action="store_true",
+        help="即便今日已签，也再次请求签到接口验证幂等返回",
+    )
+    parser.add_argument("--check-only", action="store_true", help="仅查询状态，不执行写操作")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="在本地输出详细账号信息（在 GitHub Actions 环境中自动禁用以防泄漏隐私）",
+    )
+    parser.add_argument("--json", action="store_true", help="输出完整 JSON 摘要（含账号详情，仅建议本地使用）")
+    args = parser.parse_args()
 
+    username = os.environ.get("USERNAME", "").strip()
+    password = os.environ.get("PASSWORD", "").strip()
+    userhash = (os.environ.get("TOKEN") or os.environ.get("USERHASH") or "").strip()
+    wechat_coin_key = os.environ.get("WECHAT_COIN_KEY", "").strip() or None
+    enable_read_task = (not args.no_read_task) and _env_bool("ENABLE_READ_TASK", True)
 
-def geKsK(_0x101b3e: datetime):
-    return des_encrypt2(_0x101b3e.strftime("%Y-%m-%d %H:%M:%S"), geKK(_0x101b3e, 8))
-
-
-def gneKK2(_0x4060f6: int):
-    return "k" + des_encrypt2(geKK2(_0x4060f6, 3), geKK2(_0x4060f6, 8))
-
-
-def geKsK2(_0x101b3e: float):
-    return des_encrypt2(
-        datetime.fromtimestamp(_0x101b3e / 1000).strftime("%Y-%m-%d %H:%M:%S"),
-        geKK2(_0x101b3e, 8),
+    summary = run_workflow(
+        username=username or None,
+        password=password or None,
+        userhash=userhash or None,
+        enable_read_task=enable_read_task,
+        wechat_coin_key=wechat_coin_key,
+        verify_already_signed=args.verify_already_signed,
+        check_only=args.check_only,
+        verbose=args.verbose,
     )
 
-
-def getSign():
-    now = int(time.time() * 1000)
-    return "&timestamp=" + str(now) + "&" + gneKK2(now) + "=" + geKsK2(now)
-
-
-def getUserHash(username: str, password: str):
-    try:
-        url_login = "https://my.ruanmei.com/Default.aspx/LoginUser"
-        data = {"mail": username, "psw": password, "rememberme": "true"}
-        header = {
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Accept-Encoding": "gzip, deflate",
-            "Content-Type": "application/json; charset=UTF-8",
-            "Host": "my.ruanmei.com",
-            "Origin": "http://my.ruanmei.com",
-            "Referer": "http://my.ruanmei.com/",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-            "X-Requested-With": "XMLHttpRequest",
-        }
-        response = requests.post(
-            url=url_login, data=json.dumps(data), headers=header
-        ).headers["Set-Cookie"]
-        return re.search(r"user=hash=[a-zA-Z0-9]+", response).group()[10:]
-    except Exception as e:
-        raise ExceptionGroup("可能密码错误", [e])
-
-
-def signWithHash(user_hash: str):
-    qiandaocode = [
-        0,
-        # 1,
-        # 2,
-        # 3,
-        # 256,
-        # 257,
-        # 258,
-        # 259,
-        # 512,
-        # 513,
-        # 514,
-        # 515,
-        # 768,
-        # 769,
-        # 770,
-        # 771
-    ]
-    endt = getSign()
-    session = requests.session()
-    session.verify = False
-    session.headers = {
-        "user-agent": "Mozilla/5.0 (Linux; Android 9; MI 6 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/81.0.4044.138 Mobile Safari/537.36 ithome/rmsdklevel2/night/7.26",
-        "content-type": "application/x-www-form-urlencoded",
-        "accept": "*/*",
-        "x-requested-with": "com.ruanmei.ithome",
-        "sec-fetch-site": "same-origin",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-dest": "empty",
-        "referer": "https://my.ruanmei.com/app/user/signin.html?hidemenu=1&appver=2",
-    }
-    error: list[Exception] = []
-    for fuck in qiandaocode:
-        try:
-            url_qiandao = f"https://my.ruanmei.com/api/usersign/sign?userHash={user_hash}&type={fuck}&endt={endt}"
-            qiandao = session.get(url=url_qiandao).json()
-            print(f"签到 (type {fuck})：{qiandao}")
-            if "msg" in qiandao:
-                msg: str = qiandao["msg"]
-                if msg.find("失败") != -1:
-                    error.append(Exception(qiandao))
-            elif "ok" not in qiandao:
-                error.append(Exception("签到失败，可能是 UserHash 错误"))
-        except Exception as e:
-            error.append(e)
-    return error
+    if args.json and not _is_github_actions():
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+    print("全部任务完成并验证通过。")
+    return 0
 
 
 if __name__ == "__main__":
-    if "USERHASH" in ENV and ENV["USERHASH"]:
-        print("通过 UserHash 签到")
-        error = signWithHash(ENV["USERHASH"])
-        if len(error):
-            raise ExceptionGroup("签到失败", error)
-        else:
-            print("签到成功")
-    elif "USERNAME" in ENV and "PASSWORD" in ENV:
-        print(f"登录 {ENV["USERNAME"]}")
-        user_hash = getUserHash(ENV["USERNAME"], ENV["PASSWORD"])
-        print("登录成功，开始签到")
-        error = signWithHash(user_hash)
-        if len(error):
-            raise ExceptionGroup("签到失败", error)
-        else:
-            print("签到成功")
-    else:
-        raise Exception("请配置环境变量 USERNAME 与 PASSWORD，或 USERHASH")
+    try:
+        sys.exit(main())
+    except Exception as exc:
+        extra = [
+            os.environ.get("USERNAME", ""),
+            os.environ.get("PASSWORD", ""),
+            os.environ.get("USERHASH", ""),
+            os.environ.get("TOKEN", ""),
+            os.environ.get("WECHAT_COIN_KEY", ""),
+        ]
+        print(f"执行失败: {sanitize_sensitive_text(str(exc), extra)}", file=sys.stderr)
+        sys.exit(1)
