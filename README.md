@@ -1,18 +1,25 @@
-# 实现 github actions 自动化签到
-fork 一份代码到自己仓库，然后在 https://github.com/daimiaopeng/IthomeQianDao/settings/secrets/actions/new 用户名换成你自己的，添加密钥里面添加 `USERNAME` 和 `PASSWORD`  
+# 实现 Github Actions 自动化签到
+Fork 一份代码到自己仓库，然后在 https://github.com/daimiaopeng/IthomeQianDao/settings/secrets/actions/new 用户名换成你自己的，添加密钥里面添加 `USERNAME` 与 `PASSWORD`、或 `USERHASH`  
 每天早上 1 点自动签到
 
-## 截止2022年12月14日17:37:15签到代码仍是可用的
-## 更新 2020年9月9日15:16:16 
+## 更新 2026年11月24日 11:59:20
+之家弃用了旧接口，`my.ruanmei.com/api` 已经 404 了，现在换成了 `myapi.ruanmei.com` 和 `napi.ithome.com` 等了，加密参数似乎也不需要了
+
+## ~~截止 2022年12月14日 17:37:15 签到代码仍是可用的~~
+
+## 更新 2020年9月9日 15:16:16 
 最新解密代码见文件
 
-## 更新 2020年7月8日09:41:21 
+## 更新 2020年7月8日 09:41:21 
 最新密钥：`HCa%Y|7#`  
 ~~# 光速失效，之家牛逼，我过一段时间写个自动执行 js 获取密钥的脚本，看谁厉害，走着瞧。~~
-## 更新 2020年7月6日17:57:26
+
+## 更新 2020年7月6日 17:57:26
 ### 签到破解
 
-通过抓包发现，签到页面实际上是一个 web 页面，url 为 `https://my.ruanmei.com/app/user/signinwechat.html?signtype=wechatapp`，因为没有内嵌环境所以不能直接通过浏览器正常运行，关键 js：`https://my.ruanmei.com/js/app/signinwechat.min.js?v=2020` 由 sojson.v5 加密混淆，但还是能通过代码找出猫腻，通过搜索 `endt` 找到关键位置，然后就没有然后了，加密混淆后的代码顶不住。![UieGVO.png](https://s1.ax1x.com/2020/07/06/UieGVO.png)
+通过抓包发现，签到页面实际上是一个 web 页面，url 为 `https://my.ruanmei.com/app/user/signinwechat.html?signtype=wechatapp`，因为没有内嵌环境所以不能直接通过浏览器正常运行，关键 js：`https://my.ruanmei.com/js/app/signinwechat.min.js?v=2020` 由 sojson.v5 加密混淆，但还是能通过代码找出猫腻，通过搜索 `endt` 找到关键位置，然后就没有然后了，加密混淆后的代码顶不住。
+
+![UieGVO.png](https://s1.ax1x.com/2020/07/06/UieGVO.png)
 
 ### 理清思路
 
@@ -35,6 +42,7 @@ fork 一份代码到自己仓库，然后在 https://github.com/daimiaopeng/Itho
 通过 Fiddle 断点替换 js，js 代码 `'endt': _0x5e2efb['wMjTQ'](getEncryptStr)` 改为 `getEncryptStr`，然后通过 url 中的 endt 字段获取密钥，因为之前以为这个是待的加密文本所以 endt 没有变化，以为失败了就没再尝试，如果换成 `getEncryptKey()` 应该会有变化
 
 ## 简介
+
 IT之家签到程序，~~可多次请求 api 获取上百金币，api 链接中 coinHistoryType 字段为添加金币途径，设置为不同值就可以添加不同途径金币收入，具体收入明细可以去 app 中查看。(暂且失效)~~
 
 安装 python3，再在 cmd 里输入 `pip install requests` `pip install Crypto`，然后改动代码里用户名和密码就可以了。
@@ -53,7 +61,8 @@ DES 加密，密钥为：`qs$^w<4!`，填充方式：`zeropadding`，输出方�
 
 网站 http://tool.chacuo.net/cryptdes
 
-测试字符串为 https://dyn.ithome.com/api/comment/getnewscomment?sn=1a84e1bfdc2ec68d 中的`1a84e1bfdc2ec68d`  
+测试字符串为 https://dyn.ithome.com/api/comment/getnewscomment?sn=1a84e1bfdc2ec68d 中的`1a84e1bfdc2ec68d`
+
 [![NTvJTU.png](https://s1.ax1x.com/2020/07/01/NTvJTU.png)](https://imgchr.com/i/NTvJTU)
 
 解密结果 `482628`，上面的链接是评论 api，`482628` 是新闻 id，所以原始新闻为 https://www.ithome.com/0/482/628.htm
